@@ -1,0 +1,16 @@
+{
+  "name": "voiceback",
+  "version": "1.0.0",
+  "description": "nodejs后台录音，语音唤醒",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-audiorecorder": "^3.0.0",
+    "webrtcvad": "^1.0.1"
+  }
+}
