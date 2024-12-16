@@ -1,30 +1,13 @@
-import { Transform } from'stream';
-import webrtcvad from 'webrtcvad';
+import { Transform } from 'stream';
 
 class VadTransform extends Transform {
-    constructor() {
-        super({
-            readableObjectMode: true,
-            writableObjectMode: true
-        });
-        this.vad = webrtcvad.default(16000, 3);
+    constructor(rec_options) {
+	super();
+	this.rec_options = rec_options;
     }
 
     _transform(chunk, encoding, next) {
-        const frameDuration = 10;
-        const frameSize = Math.round(frameDuration * 16000 / 1000);
-        const numFrames = Math.floor(chunk.length / frameSize);
-        const voiceData = [];
-        for (let i = 0; i < numFrames; i++) {
-            const frame = chunk.slice(i * frameSize, (i + 1) * frameSize);
-            const isSpeech = this.vad.isSpeech(frame.buffer, 16000);
-            if (isSpeech) {
-                voiceData.push(frame);
-            }
-        }
-        if (voiceData.length > 0) {
-            this.push(Buffer.concat(voiceData));
-        }
+	this.push(chunk);
         next();
     }
 }

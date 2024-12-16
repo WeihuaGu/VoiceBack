@@ -11,6 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "node-audiorecorder": "^3.0.0",
-    "webrtcvad": "^1.0.1"
+    "speaker": "^0.5.5"
   }
 }
