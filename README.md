@@ -1,2 +1,6 @@
 # VoiceBack
-nodejs后台录音，语音唤醒
+python 判断录音后台
+
+# install
+pip3 install webrtcvad wave Flask setuptools
+
