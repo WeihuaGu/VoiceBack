@@ -7,8 +7,8 @@ class VadTransform extends Transform {
     constructor(rec_options) {
 	super();
 	this.rec_options = rec_options;
-        this.sampleWidth = int(rec_options.bits/8);
-        this.sampleRate =  rec_options.sampleRate;
+        this.sampleWidth = rec_options.bits/8;
+        this.sampleRate =  rec_options.rate;
 	this.url_vadcheck = 'http://127.0.0.1:5000/check_audio';
     }
     splitFrames(chunk,frameDuration) {
@@ -33,6 +33,7 @@ class VadTransform extends Transform {
             processedFrameChunk = frameChunk;
         }
         const formData = new FormData();
+	console.log(processedFrameChunk);
         formData.append('audio', Buffer.from(processedFrameChunk));
 
         const posturl = this.url_vadcheck;
@@ -44,8 +45,8 @@ class VadTransform extends Transform {
             }).then((response)=>{
 		    resolve(response.data === "The audio contains human voice");
 	    }).catch((error)=>{
-                    console.error("Error while checking audio for voice:", error);
-                    reject(false);
+                   // console.error("Error while checking audio for voice:", error);
+                    resolve(false);
 
 	    });
 
@@ -56,15 +57,18 @@ class VadTransform extends Transform {
     _transform(chunk, encoding, next) {
        const self = this;
        const frames = this.splitFrames(chunk,30);
-       const voiceCheckPromises = frames.map(frameChunk => this.sendFrameToPythonService(frameChunk));
+
+       const voiceCheckPromises = frames.map((frameChunk) => {
+	       this.sendFrameToPythonService(frameChunk);
+       });
        Promise.all(voiceCheckPromises)
-	    .then(()=>{
+	    .then((results)=>{
 		        results.forEach((isVoice, index) => {
                           if (isVoice) 
                             self.push(frames[index]);
 			});
 		        next();
-            }).catch((err)=>{
+            }).catch((error)=>{
                console.error("Error while checking audio for voice in _transform:", error);
                next(error);
 
