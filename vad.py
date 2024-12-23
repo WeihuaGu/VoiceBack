@@ -3,7 +3,7 @@ import io
 import wave
 import struct
 
-vad = webrtcvad.Vad(2);
+vad = webrtcvad.Vad(1);
 sample_rate = 16000
 frame_duration = 30  # ms
 
