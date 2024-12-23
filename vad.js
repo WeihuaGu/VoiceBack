@@ -1,6 +1,7 @@
-import { Transform } from 'stream';
 import axios from 'axios';
 import FormData from 'form-data';
+import { Transform } from 'stream';
+import { url_vadcheck } from './config.js';
 
 
 class VadTransform extends Transform {
@@ -9,7 +10,7 @@ class VadTransform extends Transform {
 	this.rec_options = rec_options;
         this.sampleWidth = rec_options.bits/8;
         this.sampleRate =  rec_options.rate;
-	this.url_vadcheck = 'http://127.0.0.1:5000/is_human_audio';
+	this.url_vadcheck = url_vadcheck;
     }
     splitFrames(chunk,frameDuration) {
         const frameSizeInBytes = Math.floor(this.sampleRate * (frameDuration / 1000) * 2 * 1);
