@@ -13,7 +13,6 @@ class AudioSound extends Writable {
     }
     _write(chunk, encoding, callback) {
         // 将接收到的音频数据块写入到扬声器进行播放
-	console.log(chunk);
         this.speaker.write(chunk);
         callback();
     }

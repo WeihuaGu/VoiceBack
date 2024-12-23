@@ -1,7 +1,7 @@
 import AudioRecorder from 'node-audiorecorder'
 import { delaytime } from './util.js'
 const rec_options = {
-  program: `rec`, // Which program to use, either `arecord`, `rec`, or `sox`.
+  program: `arecord`, // Which program to use, either `arecord`, `rec`, or `sox`.
   device: null, // Recording device to use. Null means default.
   driver: null, // Recording driver to use. Null means default.
   bits: 16, // Sample size. (only for `rec` and `sox`)
@@ -14,14 +14,17 @@ const rec_options = {
 
 // Create an instance.
 const audioRecorder = new AudioRecorder(rec_options);
-audioRecorder.start();
-audioRecorder.on('stop', (info) => {
+audioRecorder.on('error', (info) => {
+   console.log(info);
+});
+audioRecorder.on('end', (info) => {
    console.log(info);
    delaytime(1).then(()=>{
        audioRecorder.start();
    });
 });
 const getRecorder = () => {
+   audioRecorder.start();
    return audioRecorder.stream();
 }
 export { rec_options,getRecorder }

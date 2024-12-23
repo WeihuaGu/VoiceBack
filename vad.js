@@ -9,7 +9,7 @@ class VadTransform extends Transform {
 	this.rec_options = rec_options;
         this.sampleWidth = rec_options.bits/8;
         this.sampleRate =  rec_options.rate;
-	this.url_vadcheck = 'http://127.0.0.1:5000/check_audio';
+	this.url_vadcheck = 'http://127.0.0.1:5000/is_human_audio';
     }
     splitFrames(chunk,frameDuration) {
         const frameSizeInBytes = Math.floor(this.sampleRate * (frameDuration / 1000) * 2 * 1);
@@ -27,14 +27,9 @@ class VadTransform extends Transform {
     sendFrameToPythonService(frameChunk) {
         // 根据采样宽度进行相应处理，这里针对16位音频提取低字节发送给Python服务
         let processedFrameChunk;
-        if (this.sampleWidth === 2) {
-            processedFrameChunk = frameChunk.filter((_, index) => index % 2!== 0);
-        } else {
-            processedFrameChunk = frameChunk;
-        }
+        processedFrameChunk = frameChunk;
         const formData = new FormData();
-	console.log(processedFrameChunk);
-        formData.append('audio', Buffer.from(processedFrameChunk));
+        formData.append('audio', Buffer.from(processedFrameChunk),'audio');
 
         const posturl = this.url_vadcheck;
 	return new Promise((resolve, reject) => {
@@ -43,10 +38,13 @@ class VadTransform extends Transform {
                     'Content-Type':'multipart/form-data'
                 }
             }).then((response)=>{
-		    resolve(response.data === "The audio contains human voice");
+		    const res_json =  response.data;
+		    const flag_human = res_json.human_voice;
+		    resolve(flag_human);
 	    }).catch((error)=>{
-                   // console.error("Error while checking audio for voice:", error);
+                    //console.error("Error while checking vad server:", error);
                     resolve(false);
+		    //reject(error);
 
 	    });
 
@@ -59,13 +57,14 @@ class VadTransform extends Transform {
        const frames = this.splitFrames(chunk,30);
 
        const voiceCheckPromises = frames.map((frameChunk) => {
-	       this.sendFrameToPythonService(frameChunk);
+	     return this.sendFrameToPythonService(frameChunk);
        });
        Promise.all(voiceCheckPromises)
 	    .then((results)=>{
 		        results.forEach((isVoice, index) => {
-                          if (isVoice) 
+                          if (isVoice){ 
                             self.push(frames[index]);
+			  }
 			});
 		        next();
             }).catch((error)=>{
