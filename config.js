@@ -1,4 +1,14 @@
+import fs from 'fs';
 const url_vadcheck = 'http://box.local:5000/is_human_audio';
+const snddevicename = 'pcmC2D0c';
+function sndName() {
+    const exists = fs.existsSync('/dev/snd/'+snddevicename);
+    if (exists) {
+	return snddevicename;
+    } else {
+	return null;
+    }
+}
 
 
 
@@ -19,4 +29,5 @@ const url_vadcheck = 'http://box.local:5000/is_human_audio';
 
 
 
-export { url_vadcheck } 
+
+export { url_vadcheck,sndName } 
