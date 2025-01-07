@@ -13,7 +13,9 @@ class AudioCompressor extends Transform {
         this.inputStream = new PassThrough();
         this.outputStream = new PassThrough();
         this.ffmpegProcess = ffmpeg(this.inputStream)
-	     .inputFormat('wav')
+	     .inputFormat('s16le') // 16 位有符号 PCM，小端序
+             .audioChannels(rec_options.channels) // 单声道
+             .audioFrequency(rec_options.rate) // 16kHz 采样率
              .audioCodec('libmp3lame') // 使用MP3编码进行压缩
              .format('mp3')
              .on('error', this.msg_ffmpeg_err)
